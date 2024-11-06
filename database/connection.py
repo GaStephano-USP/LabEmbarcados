@@ -1,5 +1,6 @@
-from sqlalchemy import create_engine, Column, Integer, Sequence, Float, ARRAY
-from sqlalchemy.orm import DeclarativeBase, MappedAsDataclass
+from sqlalchemy import create_engine, Column, Integer, Sequence, Float, ARRAY, DateTime
+from sqlalchemy.sql import func  # Importando a função 'func' para utilizar 'now'
+from sqlalchemy.ext.declarative import declarative_base
 
 # 1. Definir a URL de conexão
 # Substitua pelos detalhes do seu PostgreSQL
@@ -9,12 +10,8 @@ DATABASE_URL = "postgresql+psycopg2://postgres:1234@localhost:5432/postgres"
 engine = create_engine(DATABASE_URL, echo=True)
 
 # 3. Criar a base para o ORM
-class Base:
-    __allow_unmapped__ = True
+Base = declarative_base()
     
-class Base(DeclarativeBase, MappedAsDataclass):
-    pass
-
 # 4. Definir uma tabela usando SQLAlchemy ORM
 class Entries(Base):
     __tablename__ = 'entries'
@@ -24,9 +21,7 @@ class Entries(Base):
     oximetry = Column(Integer)
     bpm = Column(Integer)
     ecg = Column(ARRAY(Integer))
-
-    def __repr__(self):
-        return f"Entry [temperature={self.temperature}, oximetry={self.oximetry}, bpm={self.bpm}, ecg={self.ecg}]"
+    timestamp = Column(DateTime, default=func.now()) ##sempre coloca o datetime atual ao inserir um dado com func.now
 
 # 5. Criar o banco de dados (tabelas)
 # Esta linha cria todas as tabelas que herdam de Base, ou seja, 'usuarios' neste exemplo

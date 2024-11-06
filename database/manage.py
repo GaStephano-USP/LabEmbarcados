@@ -15,6 +15,7 @@ def insert(temp, oxi, bpm, ecg):
         session.add(new_entry)
         session.commit()
         session.close()
+        return("Sucess")
     except Exception as e:
         print(f"Ocorreu um erro: {e}")
-
+        return(e)

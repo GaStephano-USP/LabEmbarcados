@@ -3,6 +3,8 @@ from sqlalchemy.orm import sessionmaker
 from connection import Entries
 
 # Configurando a classe base e a engine do banco de dados
+# Comando para rodar banco de dados:
+# python -m uvicorn api:app --reload
 
 DATABASE_URL = "postgresql+psycopg2://postgres:1234@localhost:5432/postgres"
 engine = create_engine(DATABASE_URL)
@@ -19,3 +21,13 @@ def insert(temp, oxi, bpm, ecg):
     except Exception as e:
         print(f"Ocorreu um erro: {e}")
         return(e)
+    
+# JSON example:
+# {
+#   "temperature": 0,
+#   "oximetry": 0,
+#   "bpm": 0,
+#   "ecg": [
+#     0
+#   ]
+# }

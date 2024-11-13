@@ -24,10 +24,10 @@ def insert(temp, oxi, bpm, ecg):
     
 # JSON example:
 # {
-#   "temperature": 0,
-#   "oximetry": 0,
-#   "bpm": 0,
-#   "ecg": [
+#   "temperature": 0,   -float
+#   "oximetry": 0,      -int
+#   "bpm": 0,           -int
+#   "ecg": [            -array[int]
 #     0
 #   ]
 # }

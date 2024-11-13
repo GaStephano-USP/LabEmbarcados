@@ -15,3 +15,10 @@ void loop() {
     digitalWrite(led, LOW);               // Apaga o LED
   }
 }
+
+/**
+Como montar:
+Coloque o botão na protoboard.
+Conecte um dos pinos do botão ao pino digital 2 do Arduino (ou outro pino digital de sua escolha).
+Conecte o mesmo pino do botão ao GND do Arduino através do resistor de 10kΩ, para funcionar como um pull-down resistor. Esse resistor garante que o valor lido pelo pino do Arduino seja zero (LOW) quando o botão não estiver pressionado.
+Conecte o outro pino do botão ao +5V do Arduino. Quando o botão for pressionado, o pino de entrada (pino 2) lerá HIGH.**/

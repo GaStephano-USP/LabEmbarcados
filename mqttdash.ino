@@ -1,12 +1,10 @@
 #include <ESP8266WiFi.h> 
 #include <PubSubClient.h> 
 
-
-
-const char* ssid = "Nome da Rede do Igor aq";                                
-const char* password = "senha da rede do Igor aq";                                    
+const char* ssid = "";                                
+const char* password = "";                                    
 const char* mqtt_server = "broker.mqtt-dashboard.com";                  
-const char* mqttTopic = "DotHealth/alarme"
+const char* mqttTopic = "DotHealth/alarme";
 
 WiFiClient espClient;                                                   
 PubSubClient client(espClient);                                         
@@ -17,7 +15,7 @@ int value = 0;
 
 void setup() {                                                          
   pinMode(BUILTIN_LED, OUTPUT);                                         
-  Serial.begin(115200);                                                 
+  Serial.begin(9600);                                                 
   setup_wifi();                                                         
   client.setServer(mqtt_server, 1883);                                  
   client.setCallback(callback);                                         

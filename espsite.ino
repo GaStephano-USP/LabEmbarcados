@@ -1,8 +1,8 @@
 #include <ESP8266WiFi.h>
 
 // Configurações da rede Wi-Fi
-const char* ssid = "Ingrid 2.4GHz";   // Substitua pelo nome da sua rede Wi-Fi
-const char* password = "ilikechopin08"; // Substitua pela senha da sua rede
+const char* ssid = "";   // Substitua pelo nome da sua rede Wi-Fi
+const char* password = ""; // Substitua pela senha da sua rede
 
 WiFiServer server(80); // Inicia o servidor na porta 80
 

@@ -1,5 +1,6 @@
 #include <ESP8266WiFi.h> 
 #include <PubSubClient.h> 
+#include <ESP8266HTTPClient.h> 
 
 const char* ssid = "";                                
 const char* password = "";                                    
@@ -38,7 +39,10 @@ void setup_wifi() {
   Serial.println();                                                     
   Serial.println("WiFi conectado");                                     
   Serial.println("Endereço de IP: ");                                   
-  Serial.println(WiFi.localIP());                                       
+  Serial.println(WiFi.localIP());    
+  sendPostRequest("");
+  Serial.print("fmandou pro banco"); 
+                         
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {        
@@ -73,10 +77,13 @@ void reconnect() {
     }
   }
 }
-void loop() {                                                            
+
+void loop() { 
+
   // Reconexão MQTT, se necessário
   if (!client.connected()) {                                             
-    reconnect();
+    //reconnect();
+    //COMENTEI PRA TESTAR O ENVIO DE DADOS PRO BANCO
   }
   client.loop();                                                         
 
@@ -94,5 +101,26 @@ void loop() {
     } else {
       Serial.println("Falha ao enviar mensagem ao MQTT!");
     }
-  }                
+  }
 }
+
+void sendPostRequest(String data) {
+  Serial.println("To na funcao");
+  HTTPClient http;
+  http.begin(espClient, "http://192.168.15.8:8000/insertentry");
+  http.addHeader("Content-Type", "application/json");
+
+  String jsonData = "{\"temperature\": 0, \"oximetry\": 0, \"bpm\": 0, \"ecg\": [0]}";
+  int httpResponseCode = http.POST(jsonData);
+
+  if (httpResponseCode > 0) {
+    Serial.println("Resposta do servidor:");
+    Serial.println(http.getString());
+  } else {
+    Serial.print("Erro na requisição HTTP POST: ");
+    Serial.println(httpResponseCode);
+  }
+
+  http.end();
+}
+                

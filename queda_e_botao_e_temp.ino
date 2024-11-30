@@ -148,6 +148,7 @@
         if (timer >= 6000)
             {
               espSerial.println(mensagem);
+              timer = 0;
             }
         //imprime temperatura no serial
         //Serial.println(temperatura_convertida);

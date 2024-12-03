@@ -64,7 +64,6 @@ void setup_wifi() {
   Serial.println("WiFi conectado");                                     
   Serial.println("Endereço de IP: ");                                   
   Serial.println(WiFi.localIP());    
-  sendPostRequest("");
   Serial.print("fmandou pro banco"); 
                          
 }
@@ -106,7 +105,7 @@ void loop() {
 
   // Reconexão MQTT, se necessário
   if (!client.connected()) {                                             
-    //reconnect();
+    reconnect();
     //COMENTEI PRA TESTAR O ENVIO DE DADOS PRO BANCO
   }
   client.loop();                                                         
@@ -115,15 +114,18 @@ void loop() {
   if (Serial.available() > 0) {
     String receivedData = Serial.readStringUntil('\n'); // Lê até o caractere de nova linha
     receivedData.trim(); // Remove espaços extras ou quebras de linha
-
     Serial.print("Recebido no RX: ");
     Serial.println(receivedData);
-
-    // Publica a mensagem recebida no tópico MQTT
-    if (client.publish(mqttTopic, receivedData.c_str())) {
-      Serial.println("Mensagem enviada ao MQTT!");
-    } else {
-      Serial.println("Falha ao enviar mensagem ao MQTT!");
+    if(receivedData == "alerta"){
+      // Publica a mensagem recebida no tópico MQTT
+      if (client.publish(mqttTopic, 1)) {
+        Serial.println("Mensagem enviada ao MQTT!");
+      } else {
+        Serial.println("Falha ao enviar mensagem ao MQTT!");
+      }
+    }
+    else{
+      sendPostRequest(receivedData);
     }
   }
 }
@@ -133,20 +135,13 @@ void sendPostRequest(String data) {
   HTTPClient http;
   http.begin(espClient, "http://192.168.15.8:8000/insertentry");// ****checar endereço IP****
   http.addHeader("Content-Type", "application/json");
-  pox.update(); //Atualiza a leitura do sensor
-
-  if (millis() - tsLastReport > REPORTING_PERIOD_MS) { //Imprime a leitura em intervalos de 1000ms
-    Serial.print("Taxa de Batimento : ");
-    Serial.print(pox.getHeartRate()); // Faz a leitura de batimento cardíaco
-    Serial.print("bpm / Saturacao sangue(SP02) : ");
-    Serial.print(pox.getSpO2()); //Realiza a leitura da saturação do sangue
-    Serial.println("%");
-    tsLastReport = millis();
-  }
-  
-/* float int int */
+  pox.update(); //Atualiza a leitura do sensor 
+  temperatura = data.substring(13);
+  oximetria = pox.getHeartRate();
+  bpm = pox.getSp02();
+  /* float int int */
   char jsonData[100];
-  strinf(jsonData, "{\"temperature\": %f, \"oximetry\": %d, \"bpm\": %d, \"ecg\": [0]}", temperatura, oximetria, bpm);
+  strinf(jsonData, "{\"temperature\": %f, \"oximetry\": %d, \"bpm\": %d}", temperatura, oximetria, bpm);
 
   int httpResponseCode = http.POST(jsonData);
 

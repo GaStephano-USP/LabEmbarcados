@@ -96,8 +96,7 @@
         if (estadoBotao == HIGH)//Se o botão for pressionado
         {
             String mensagem = "Botão de Pânico Acionado";
-            espSerial.println(mensagem); // Envia mensagem ao ESP8266
-            Serial.println("Mensagem enviada ao ESP8266.");
+            Serial.println("alarme");
             delay(100);
         }
 
@@ -132,8 +131,7 @@
             {
                 trigger3count++; //incrementa temporizador3
                 String mensagem = "Queda Detectada";
-                espSerial.println(mensagem); // Envia mensagem ao ESP8266
-                Serial.println("Mensagem enviada ao ESP8266.");
+                Serial.println("alarme");
                 trigger3=false;
             }
         }
@@ -145,7 +143,7 @@
         temperatura_convertida = (temperatura/10.0) + 10;
         
         snprintf(mensagem, sizeof(mensagem), "Temperatura: %.2f", temperatura_convertida);
-        if (timer >= 6000)
+        if (timer >= 300)
             {
               espSerial.println(mensagem);
               timer = 0;

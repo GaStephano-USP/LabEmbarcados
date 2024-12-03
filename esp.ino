@@ -1,9 +1,17 @@
 #include <ESP8266WiFi.h> 
 #include <PubSubClient.h> 
 #include <ESP8266HTTPClient.h> 
+#include <Wire.h> //Biblioteca para comunicação I2C
+#include "MAX30100_PulseOximeter.h" //Biblioteca para uso do sensor de frequência cardíaca e oxímetro MAX30100 
 
-const char* ssid = "";                                
-const char* password = "";                                    
+#define REPORTING_PERIOD_MS     1000 // Intervalo entre a medição de cada amostra
+
+uint32_t tsLastReport = 0; // Tempo da última amostra dectada
+
+PulseOximeter pox; //Declaração objeto pox
+
+const char* ssid = "celular do igor";                                
+const char* password = "987078856";                                    
 const char* mqtt_server = "broker.mqtt-dashboard.com";                  
 const char* mqttTopic = "DotHealth/alarme";
 
@@ -19,7 +27,23 @@ void setup() {
   Serial.begin(9600);                                                 
   setup_wifi();                                                         
   client.setServer(mqtt_server, 1883);                                  
-  client.setCallback(callback);                                         
+  client.setCallback(callback);
+  Serial.print("Iniciando funcionamento do sensor ");
+
+  if (!pox.begin())  //Testa a comunicação com o sensor
+  {
+    Serial.println("Falhou ! "); //Se a comunicação não foi realizada corretamente exibe a mensagem "Falhou"
+    for (;;);
+  } else
+  {
+    Serial.println("Sucesso ! "); //Se a comunicação foi realizada com sucesso exibe a mensagem "Sucesso !"
+  }
+  pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA); // Define que o sensor use 7,6 mA para o led
+  pox.setOnBeatDetectedCallback(onBeatDetected); // Registra todas as vezes em que um batimento for detectado                                         
+}
+
+void onBeatDetected() { //Função executada quando um pulso é detectado
+  Serial.println("Batimento detectado");
 }
 
 void setup_wifi() {                                                     
@@ -105,12 +129,25 @@ void loop() {
 }
 
 void sendPostRequest(String data) {
-  Serial.println("To na funcao");
+  /*Serial.println("To na funcao");*/
   HTTPClient http;
-  http.begin(espClient, "http://192.168.15.8:8000/insertentry");
+  http.begin(espClient, "http://192.168.15.8:8000/insertentry");// ****checar endereço IP****
   http.addHeader("Content-Type", "application/json");
+  pox.update(); //Atualiza a leitura do sensor
 
-  String jsonData = "{\"temperature\": 0, \"oximetry\": 0, \"bpm\": 0, \"ecg\": [0]}";
+  if (millis() - tsLastReport > REPORTING_PERIOD_MS) { //Imprime a leitura em intervalos de 1000ms
+    Serial.print("Taxa de Batimento : ");
+    Serial.print(pox.getHeartRate()); // Faz a leitura de batimento cardíaco
+    Serial.print("bpm / Saturacao sangue(SP02) : ");
+    Serial.print(pox.getSpO2()); //Realiza a leitura da saturação do sangue
+    Serial.println("%");
+    tsLastReport = millis();
+  }
+  
+/* float int int */
+  char jsonData[100];
+  strinf(jsonData, "{\"temperature\": %f, \"oximetry\": %d, \"bpm\": %d, \"ecg\": [0]}", temperatura, oximetria, bpm);
+
   int httpResponseCode = http.POST(jsonData);
 
   if (httpResponseCode > 0) {

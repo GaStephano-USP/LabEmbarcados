@@ -20,7 +20,6 @@ class Entries(Base):
     temperature = Column(Float)
     oximetry = Column(Integer)
     bpm = Column(Integer)
-    ecg = Column(ARRAY(Integer))
     timestamp = Column(DateTime, default=func.now()) ##sempre coloca o datetime atual ao inserir um dado com func.now
 
 # 5. Criar o banco de dados (tabelas)

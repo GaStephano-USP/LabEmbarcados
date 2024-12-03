@@ -1,5 +1,5 @@
 Comando para rodar a fastapi no windows:
     python -m uvicorn api:app --reload
 
-Pra todos da rede:
+Pra todos da rede (checar ipconfig):
     python -m uvicorn api:app --host 0.0.0.0 --port 8000

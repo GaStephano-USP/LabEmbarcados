@@ -10,10 +10,10 @@ DATABASE_URL = "postgresql+psycopg2://postgres:1234@localhost:5432/postgres"
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
-def insert(temp, oxi, bpm, ecg):
+def insert(temp, oxi, bpm):
     try:
         session = Session()
-        new_entry = Entries(temperature=temp, oximetry=oxi, bpm=bpm, ecg=ecg)
+        new_entry = Entries(temperature=temp, oximetry=oxi, bpm=bpm)
         session.add(new_entry)
         session.commit()
         session.close()
@@ -27,7 +27,5 @@ def insert(temp, oxi, bpm, ecg):
 #   "temperature": 0,   -float
 #   "oximetry": 0,      -int
 #   "bpm": 0,           -int
-#   "ecg": [            -array[int]
-#     0
 #   ]
 # }

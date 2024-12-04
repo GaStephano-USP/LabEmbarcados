@@ -22,6 +22,12 @@ class Entries(Base):
     bpm = Column(Integer)
     timestamp = Column(DateTime, default=func.now()) ##sempre coloca o datetime atual ao inserir um dado com func.now
 
+class Falls(Base):
+    __tablename__ = 'falls'
+
+    id = Column(Integer, Sequence('usuario_id_seq'), primary_key=True)
+    timestamp = Column(DateTime, default=func.now())
+
 # 5. Criar o banco de dados (tabelas)
 # Esta linha cria todas as tabelas que herdam de Base, ou seja, 'usuarios' neste exemplo
 # Cria se a tabela não existe no banco de dados

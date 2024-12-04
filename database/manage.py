@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from connection import Entries
+from connection import Entries, Falls
 
 # Configurando a classe base e a engine do banco de dados
 # Comando para rodar banco de dados:
@@ -14,6 +14,18 @@ def insert(temp, oxi, bpm):
     try:
         session = Session()
         new_entry = Entries(temperature=temp, oximetry=oxi, bpm=bpm)
+        session.add(new_entry)
+        session.commit()
+        session.close()
+        return("Sucess")
+    except Exception as e:
+        print(f"Ocorreu um erro: {e}")
+        return(e)
+    
+def insert_fall():
+    try:
+        session = Session()
+        new_entry = Falls()
         session.add(new_entry)
         session.commit()
         session.close()

@@ -96,7 +96,7 @@
         if (estadoBotao == HIGH)//Se o botão for pressionado
         {
             String mensagem = "Botão de Pânico Acionado";
-            Serial.println("alarme");
+            Serial.println("botao");
             delay(100);
         }
 
@@ -131,7 +131,7 @@
             {
                 trigger3count++; //incrementa temporizador3
                 String mensagem = "Queda Detectada";
-                Serial.println("alarme");
+                Serial.println("queda");
                 trigger3=false;
             }
         }
@@ -145,7 +145,7 @@
         snprintf(mensagem, sizeof(mensagem), "Temperatura: %.2f", temperatura_convertida);
         if (timer >= 300)
             {
-              espSerial.println(mensagem);
+              Serial.println(mensagem);
               timer = 0;
             }
         //imprime temperatura no serial

@@ -10,8 +10,8 @@ uint32_t tsLastReport = 0; // Tempo da última amostra dectada
 
 PulseOximeter pox; //Declaração objeto pox
 
-const char* ssid = "celular do igor";                                
-const char* password = "987078856";                                    
+const char* ssid = "";                                
+const char* password = "";                                    
 const char* mqtt_server = "broker.mqtt-dashboard.com";                  
 const char* mqttTopic = "DotHealth/alarme";
 
@@ -38,13 +38,10 @@ void setup() {
   {
     Serial.println("Sucesso ! "); //Se a comunicação foi realizada com sucesso exibe a mensagem "Sucesso !"
   }
-  pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA); // Define que o sensor use 7,6 mA para o led
-  pox.setOnBeatDetectedCallback(onBeatDetected); // Registra todas as vezes em que um batimento for detectado                                         
+  pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA); // Define que o sensor use 7,6 mA para o led                                     
 }
 
-void onBeatDetected() { //Função executada quando um pulso é detectado
-  Serial.println("Batimento detectado");
-}
+
 
 void setup_wifi() {                                                     
 
@@ -63,9 +60,7 @@ void setup_wifi() {
   Serial.println();                                                     
   Serial.println("WiFi conectado");                                     
   Serial.println("Endereço de IP: ");                                   
-  Serial.println(WiFi.localIP());    
-  Serial.print("fmandou pro banco"); 
-                         
+  Serial.println(WiFi.localIP());                            
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {        
@@ -107,8 +102,7 @@ void loop() {
   if (!client.connected()) {                                             
     reconnect();
     //COMENTEI PRA TESTAR O ENVIO DE DADOS PRO BANCO
-  }
-  client.loop();                                                         
+  }                                                     
 
    // Verifica se há dados recebidos na porta serial (RX)
   if (Serial.available() > 0) {
@@ -116,14 +110,26 @@ void loop() {
     receivedData.trim(); // Remove espaços extras ou quebras de linha
     Serial.print("Recebido no RX: ");
     Serial.println(receivedData);
-    if(receivedData == "alerta"){
+
+    if(receivedData == "queda"){
       // Publica a mensagem recebida no tópico MQTT
-      if (client.publish(mqttTopic, 1)) {
+      if (client.publish(mqttTopic, "1")) {
         Serial.println("Mensagem enviada ao MQTT!");
       } else {
         Serial.println("Falha ao enviar mensagem ao MQTT!");
       }
+      sendPostFall(receivedData);
     }
+
+    else if(receivedData == "botao"){
+      if (client.publish(mqttTopic, "1")) {
+        Serial.println("Mensagem enviada ao MQTT!");
+      } else {
+        Serial.println("Falha ao enviar mensagem ao MQTT!");
+      }
+      sendPostFall(receivedData);
+    }
+
     else{
       sendPostRequest(receivedData);
     }
@@ -131,18 +137,16 @@ void loop() {
 }
 
 void sendPostRequest(String data) {
-  /*Serial.println("To na funcao");*/
   HTTPClient http;
-  http.begin(espClient, "http://192.168.15.8:8000/insertentry");// ****checar endereço IP****
+  http.begin(espClient, "http://10.144.0.120:8000/insertentry");// ****checar endereço IP****
   http.addHeader("Content-Type", "application/json");
-  pox.update(); //Atualiza a leitura do sensor 
-  temperatura = data.substring(13);
-  oximetria = pox.getHeartRate();
-  bpm = pox.getSp02();
+
+  float temperatura = data.toFloat();
+  pox.update();
   /* float int int */
   char jsonData[100];
-  strinf(jsonData, "{\"temperature\": %f, \"oximetry\": %d, \"bpm\": %d}", temperatura, oximetria, bpm);
-
+  sprintf(jsonData, "{\"temperature\": %f, \"oximetry\": 0, \"bpm\": 0}", temperatura);
+  Serial.println(jsonData);
   int httpResponseCode = http.POST(jsonData);
 
   if (httpResponseCode > 0) {
@@ -156,3 +160,23 @@ void sendPostRequest(String data) {
   http.end();
 }
                 
+void sendPostFall(String data) {
+  HTTPClient http;
+  http.begin(espClient, "http://10.144.0.120:8000/insertentryfall");// ****checar endereço IP****
+  http.addHeader("Content-Type", "application/json");
+
+  char jsonData[100];
+  sprintf(jsonData, "{}");
+
+  int httpResponseCode = http.POST(jsonData);
+
+  if (httpResponseCode > 0) {
+    Serial.println("Resposta do servidor:");
+    Serial.println(http.getString());
+  } else {
+    Serial.print("Erro na requisição HTTP POST: ");
+    Serial.println(httpResponseCode);
+  }
+
+  http.end();
+}
